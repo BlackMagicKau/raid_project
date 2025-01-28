@@ -31,7 +31,7 @@ This is a [Next.js](https://nextjs.org) project that implements a Point of Sale 
 - View total sales for each day and for each fruit 
 - Add new fruits to amend stock levels
 
-(User stories 1 - 6)
+(User stories 1 - 6, 8 and 11)
 
 ## Getting Started
 
