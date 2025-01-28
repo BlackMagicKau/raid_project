@@ -3,6 +3,16 @@
 import { useEffect, useState } from 'react';
 import { Order, Fruit } from '@/types';
 import { formatPrice } from '@/utils/format';
+import { 
+  GiAppleSeeds, 
+  GiOrangeSlice, 
+  GiBanana, 
+  GiGrapes, 
+  GiPineapple, 
+  GiStrawberry,
+  GiFruitBowl 
+} from 'react-icons/gi';
+import { IconType } from 'react-icons';
 
 interface DailySales {
   date: string;
@@ -20,6 +30,15 @@ interface Analytics {
   dailySales: DailySales[];
   fruitSales: FruitSales[];
 }
+
+const fruitIcons: Record<string, IconType> = {
+  'Apple': GiAppleSeeds,
+  'Orange': GiOrangeSlice,
+  'Banana': GiBanana,
+  'Grapes': GiGrapes,
+  'Pineapple': GiPineapple,
+  'Strawberry': GiStrawberry
+};
 
 export default function AdminPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -87,6 +106,11 @@ export default function AdminPage() {
     } catch (error) {
       console.error('Failed to update stock:', error);
     }
+  };
+
+  const getFruitIcon = (fruitName: string) => {
+    const Icon = fruitIcons[fruitName] || GiFruitBowl;
+    return <Icon className="w-6 h-6 text-indigo-600" />;
   };
 
   return (
@@ -177,7 +201,10 @@ export default function AdminPage() {
           <div className="space-y-4">
             {fruits.map(fruit => (
               <div key={fruit.id} className="flex items-center justify-between">
-                <span>{fruit.name}</span>
+                <div className="flex items-center space-x-3">
+                  {getFruitIcon(fruit.name)}
+                  <span>{fruit.name}</span>
+                </div>
                 <div className="flex items-center space-x-4">
                   <input
                     type="number"

@@ -3,6 +3,26 @@
 import { useEffect, useState } from 'react';
 import { Fruit, CartItem } from '@/types';
 import { formatPrice } from '@/utils/format';
+import { 
+  GiAppleSeeds, 
+  GiOrangeSlice, 
+  GiBanana, 
+  GiGrapes, 
+  GiPineapple, 
+  GiStrawberry,
+  GiFruitBowl // default icon for unknown fruits
+} from 'react-icons/gi';
+import { IconType } from 'react-icons';
+
+// Create a map of fruit names to their icons
+const fruitIcons: Record<string, IconType> = {
+  'Apple': GiAppleSeeds,
+  'Orange': GiOrangeSlice,
+  'Banana': GiBanana,
+  'Grapes': GiGrapes,
+  'Pineapple': GiPineapple,
+  'Strawberry': GiStrawberry
+};
 
 export default function Home() {
   const [fruits, setFruits] = useState<Fruit[]>([]);
@@ -104,22 +124,40 @@ export default function Home() {
     }
   };
 
+  const getFruitIcon = (fruitName: string) => {
+    const Icon = fruitIcons[fruitName] || GiFruitBowl;
+    return <Icon className="w-8 h-8 text-indigo-600" />;
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Fruits List */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {fruits.map(fruit => (
           <div key={fruit.id} className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-xl font-semibold">{fruit.name}</h2>
-            <p className="text-gray-600">${formatPrice(fruit.price)}</p>
-            <p className="text-sm text-gray-500">{fruit.stock} in stock</p>
-            <button
-              onClick={() => addToCart(fruit)}
-              className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg"
-              disabled={fruit.stock === 0}
-            >
-              Add to Cart
-            </button>
+            <div className="flex items-center space-x-4 mb-4">
+              {getFruitIcon(fruit.name)}
+              <h2 className="text-xl font-semibold">{fruit.name}</h2>
+            </div>
+            <div className="space-y-2">
+              <p className="text-2xl font-bold text-indigo-600">
+                ${formatPrice(fruit.price)}
+              </p>
+              <p className={`text-sm ${
+                fruit.stock > 0 ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {fruit.stock > 0 ? `${fruit.stock} in stock` : 'Out of stock'}
+              </p>
+              <button
+                onClick={() => addToCart(fruit)}
+                disabled={fruit.stock === 0}
+                className="w-full mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg
+                         hover:bg-indigo-700 disabled:bg-gray-300 
+                         disabled:cursor-not-allowed transition-colors"
+              >
+                {fruit.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -129,7 +167,10 @@ export default function Home() {
         <h2 className="text-2xl font-semibold mb-6">Shopping Cart</h2>
         {cart.map(item => (
           <div key={item.fruit.id} className="flex items-center justify-between py-4 border-b">
-            <span>{item.fruit.name}</span>
+            <div className="flex items-center space-x-3">
+              {getFruitIcon(item.fruit.name)}
+              <span>{item.fruit.name}</span>
+            </div>
             <div className="flex items-center space-x-4">
               <span>${formatPrice(item.fruit.price)} each</span>
               <input
