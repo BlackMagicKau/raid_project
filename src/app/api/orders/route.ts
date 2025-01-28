@@ -1,5 +1,18 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { OrderItem } from '@prisma/client';
+
+interface CreateOrderItem {
+  fruitId: number;
+  quantity: number;
+  price: number;
+}
+
+interface CreateOrderRequest {
+  customerName: string;
+  items: CreateOrderItem[];
+  totalAmount: number;
+}
 
 export async function GET() {
   try {
@@ -14,6 +27,7 @@ export async function GET() {
     });
     return NextResponse.json(orders);
   } catch (error) {
+    console.error('Failed to fetch orders:', error);
     return NextResponse.json(
       { error: 'Failed to fetch orders' },
       { status: 500 }
@@ -23,7 +37,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = await request.json() as CreateOrderRequest;
     const { customerName, items, totalAmount } = body;
 
     const order = await prisma.order.create({
@@ -31,7 +45,7 @@ export async function POST(request: Request) {
         customerName,
         totalAmount,
         items: {
-          create: items.map((item: any) => ({
+          create: items.map((item) => ({
             fruitId: item.fruitId,
             quantity: item.quantity,
             priceAtPurchase: item.price
@@ -54,6 +68,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(order);
   } catch (error) {
+    console.error('Failed to create order:', error);
     return NextResponse.json(
       { error: 'Failed to create order' },
       { status: 500 }

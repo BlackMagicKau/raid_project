@@ -76,9 +76,13 @@ export default function Home() {
         setCustomerName('');
         fetchFruits(); // Refresh fruits to update stock
         alert('Order submitted successfully!');
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit order');
       }
     } catch (error) {
-      alert('Failed to submit order');
+      console.error('Error submitting order:', error);
+      alert('Failed to submit order. Please try again.');
     }
   };
 
