@@ -64,6 +64,66 @@ To learn more about Next.js, take a look at the following resources:
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Learn Next.js](https://nextjs.org/learn)
 
+## Deployment
+
+### Prerequisites
+1. Create a [Vercel account](https://vercel.com/signup)
+2. Create a PostgreSQL database (you can use [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres))
+3. Have your environment variables ready (see `.env.example`)
+
+### Deploy to Vercel
+
+1. Push your code to GitHub
+2. Visit [Vercel New Project](https://vercel.com/new)
+3. Import your GitHub repository
+4. Configure your environment variables:
+   - Add `DATABASE_URL` pointing to your production database
+5. Deploy!
+
+### Post-Deployment
+
+After deploying, you'll need to run the database migrations and seed the database:
+
+1. From your Vercel project dashboard, go to Settings → Environment Variables
+2. Add your production `DATABASE_URL`
+3. Run the following commands locally, targeting your production database:
+   ```bash
+   # Update DATABASE_URL in your local .env to point to production
+   npx prisma db push
+   npm run seed
+   ```
+
+### Development vs Production
+
+- Development: Uses local PostgreSQL database
+- Production: Uses Vercel Postgres or your preferred PostgreSQL host
+- Environment variables are managed through Vercel's dashboard
+
+## Local Development
+
+1. Clone the repository
+2. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+3. Update `.env` with your local database credentials
+4. Install dependencies:
+   ```bash
+   npm install
+   ```
+5. Run database migrations:
+   ```bash
+   npx prisma db push
+   ```
+6. Seed the database:
+   ```bash
+   npm run seed
+   ```
+7. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
