@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Order, Fruit } from '@/types';
+import { formatPrice } from '@/utils/format';
 
 interface DailySales {
   date: string;
@@ -102,7 +103,7 @@ export default function AdminPage() {
               {analytics?.dailySales.map(day => (
                 <div key={day.date} className="flex justify-between">
                   <span>{new Date(day.date).toLocaleDateString()}</span>
-                  <span className="font-medium">${day.total}</span>
+                  <span className="font-medium">${formatPrice(day.total)}</span>
                 </div>
               ))}
             </div>
@@ -117,7 +118,7 @@ export default function AdminPage() {
                   <span>{fruit.fruitName}</span>
                   <div>
                     <span className="mr-4">{fruit.totalQuantity} sold</span>
-                    <span className="font-medium">${fruit.totalSales}</span>
+                    <span className="font-medium">${formatPrice(fruit.totalSales)}</span>
                   </div>
                 </div>
               ))}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Fruit, CartItem } from '@/types';
+import { formatPrice } from '@/utils/format';
 
 export default function Home() {
   const [fruits, setFruits] = useState<Fruit[]>([]);
@@ -21,7 +22,13 @@ export default function Home() {
   const addToCart = (fruit: Fruit) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.fruit.id === fruit.id);
+      
+      // Check if adding one more would exceed stock
       if (existingItem) {
+        if (existingItem.quantity >= fruit.stock) {
+          alert(`Sorry, only ${fruit.stock} ${fruit.name}(s) available in stock`);
+          return prevCart;
+        }
         return prevCart.map(item =>
           item.fruit.id === fruit.id
             ? { ...item, quantity: item.quantity + 1 }
@@ -33,6 +40,15 @@ export default function Home() {
   };
 
   const updateQuantity = (fruitId: number, quantity: number) => {
+    const fruit = fruits.find(f => f.id === fruitId);
+    if (!fruit) return;
+
+    // Validate against stock
+    if (quantity > fruit.stock) {
+      alert(`Sorry, only ${fruit.stock} ${fruit.name}(s) available in stock`);
+      quantity = fruit.stock;
+    }
+
     setCart(prevCart =>
       prevCart.map(item =>
         item.fruit.id === fruitId
@@ -43,9 +59,11 @@ export default function Home() {
   };
 
   const getTotalAmount = () => {
-    return cart.reduce(
-      (total, item) => total + item.fruit.price * item.quantity,
-      0
+    return formatPrice(
+      cart.reduce(
+        (total, item) => total + item.fruit.price * item.quantity,
+        0
+      )
     );
   };
 
@@ -87,101 +105,69 @@ export default function Home() {
   };
 
   return (
-    <div className="container mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Product List */}
-        <div className="lg:col-span-2">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-8">Available Fruits</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {fruits.map(fruit => (
-              <div 
-                key={fruit.id} 
-                className="bg-white rounded-lg shadow-sm p-6 border border-gray-200"
-              >
-                <h3 className="text-lg font-medium text-gray-900 mb-4">{fruit.name}</h3>
-                <div className="space-y-4">
-                  <p className="text-2xl font-semibold text-gray-900">${fruit.price}</p>
-                  <p className={`text-base ${fruit.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {fruit.stock > 0 ? `${fruit.stock} in stock` : 'Out of stock'}
-                  </p>
-                  <button
-                    onClick={() => addToCart(fruit)}
-                    disabled={fruit.stock === 0}
-                    className="w-full min-h-[44px] bg-indigo-600 text-white px-6 py-3 rounded-lg
-                             text-base font-medium hover:bg-indigo-700 
-                             disabled:bg-gray-300 disabled:cursor-not-allowed
-                             transition-colors focus:outline-none focus:ring-2 
-                             focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    Add to Cart
-                  </button>
-                </div>
-              </div>
-            ))}
+    <div className="container mx-auto px-4 py-8">
+      {/* Fruits List */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {fruits.map(fruit => (
+          <div key={fruit.id} className="bg-white rounded-lg shadow-sm p-6">
+            <h2 className="text-xl font-semibold">{fruit.name}</h2>
+            <p className="text-gray-600">${formatPrice(fruit.price)}</p>
+            <p className="text-sm text-gray-500">{fruit.stock} in stock</p>
+            <button
+              onClick={() => addToCart(fruit)}
+              className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg"
+              disabled={fruit.stock === 0}
+            >
+              Add to Cart
+            </button>
           </div>
+        ))}
+      </div>
+
+      {/* Cart Section */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-semibold mb-6">Shopping Cart</h2>
+        {cart.map(item => (
+          <div key={item.fruit.id} className="flex items-center justify-between py-4 border-b">
+            <span>{item.fruit.name}</span>
+            <div className="flex items-center space-x-4">
+              <span>${formatPrice(item.fruit.price)} each</span>
+              <input
+                type="number"
+                value={item.quantity}
+                onChange={(e) => updateQuantity(item.fruit.id, parseInt(e.target.value))}
+                className="w-20 px-2 py-1 border rounded"
+                min="0"
+                max={item.fruit.stock}
+              />
+              <span>${formatPrice(item.fruit.price * item.quantity)}</span>
+            </div>
+          </div>
+        ))}
+        
+        <div className="mt-6 text-right">
+          <p className="text-xl font-semibold">Total: ${getTotalAmount()}</p>
         </div>
-
-        {/* Shopping Cart */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 sticky top-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Your Cart</h2>
-            
-            <input
-              type="text"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Enter your name"
-              className="w-full px-4 min-h-[44px] text-base border border-gray-300 rounded-lg mb-6
-                       focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
-            
-            {cart.length === 0 ? (
-              <p className="text-base text-gray-500 text-center py-6">Your cart is empty</p>
-            ) : (
-              <div className="space-y-6">
-                {cart.map(item => (
-                  <div key={item.fruit.id} className="flex items-center justify-between py-3 border-b">
-                    <div>
-                      <h3 className="text-base font-medium text-gray-900">{item.fruit.name}</h3>
-                      <p className="text-base text-gray-500 mt-1">${item.fruit.price} each</p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <input
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) => updateQuantity(item.fruit.id, parseInt(e.target.value))}
-                        min="0"
-                        max={item.fruit.stock}
-                        className="w-20 px-3 min-h-[44px] text-base border border-gray-300 rounded-lg
-                                 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      />
-                    </div>
-                  </div>
-                ))}
-
-                <div className="pt-6 border-t border-gray-200">
-                  <div className="flex justify-between mb-6">
-                    <span className="text-lg font-semibold text-gray-900">Total</span>
-                    <span className="text-lg font-semibold text-gray-900">
-                      ${getTotalAmount().toFixed(2)}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={submitOrder}
-                    disabled={cart.length === 0 || !customerName}
-                    className="w-full min-h-[44px] bg-indigo-600 text-white px-6 py-3 rounded-lg
-                             text-base font-medium hover:bg-indigo-700 
-                             disabled:bg-gray-300 disabled:cursor-not-allowed
-                             transition-colors focus:outline-none focus:ring-2 
-                             focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    Place Order
-                  </button>
-                </div>
-              </div>
-            )}
+        
+        <div className="pt-6 border-t border-gray-200">
+          <div className="flex justify-between mb-6">
+            <span className="text-lg font-semibold text-gray-900">Total</span>
+            <span className="text-lg font-semibold text-gray-900">
+              ${getTotalAmount()}
+            </span>
           </div>
+
+          <button
+            onClick={submitOrder}
+            disabled={cart.length === 0 || !customerName}
+            className="w-full min-h-[44px] bg-indigo-600 text-white px-6 py-3 rounded-lg
+                     text-base font-medium hover:bg-indigo-700 
+                     disabled:bg-gray-300 disabled:cursor-not-allowed
+                     transition-colors focus:outline-none focus:ring-2 
+                     focus:ring-indigo-500 focus:ring-offset-2"
+          >
+            Place Order
+          </button>
         </div>
       </div>
     </div>

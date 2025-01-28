@@ -39,6 +39,30 @@ export async function POST(request: Request) {
     const body = await request.json() as CreateOrderRequest;
     const { customerName, items, totalAmount } = body;
 
+    // Validate stock levels before creating order
+    for (const item of items) {
+      const fruit = await prisma.fruit.findUnique({
+        where: { id: item.fruitId }
+      });
+
+      if (!fruit) {
+        return NextResponse.json(
+          { error: `Fruit with id ${item.fruitId} not found` },
+          { status: 404 }
+        );
+      }
+
+      if (item.quantity > fruit.stock) {
+        return NextResponse.json(
+          { 
+            error: `Not enough stock for ${fruit.name}. Requested: ${item.quantity}, Available: ${fruit.stock}` 
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    // If validation passes, create the order
     const order = await prisma.order.create({
       data: {
         customerName,
