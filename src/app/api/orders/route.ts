@@ -37,6 +37,8 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json() as CreateOrderRequest;
+    console.log('Received order:', body);
+
     const { customerName, items, totalAmount } = body;
 
     // Validate stock levels before creating order
@@ -44,8 +46,10 @@ export async function POST(request: Request) {
       const fruit = await prisma.fruit.findUnique({
         where: { id: item.fruitId }
       });
+      console.log('Checking fruit:', fruit, 'for order item:', item);
 
       if (!fruit) {
+        console.error(`Fruit not found: ${item.fruitId}`);
         return NextResponse.json(
           { error: `Fruit with id ${item.fruitId} not found` },
           { status: 404 }
@@ -53,6 +57,7 @@ export async function POST(request: Request) {
       }
 
       if (item.quantity > fruit.stock) {
+        console.error(`Insufficient stock for ${fruit.name}`);
         return NextResponse.json(
           { 
             error: `Not enough stock for ${fruit.name}. Requested: ${item.quantity}, Available: ${fruit.stock}` 
@@ -62,7 +67,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // If validation passes, create the order
+    // Create order
     const order = await prisma.order.create({
       data: {
         customerName,
@@ -76,8 +81,9 @@ export async function POST(request: Request) {
         }
       }
     });
+    console.log('Created order:', order);
 
-    // Update fruit stock
+    // Update stock
     for (const item of items) {
       await prisma.fruit.update({
         where: { id: item.fruitId },
@@ -93,7 +99,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Failed to create order:', error);
     return NextResponse.json(
-      { error: 'Failed to create order' },
+      { error: error instanceof Error ? error.message : 'Failed to create order' },
       { status: 500 }
     );
   }

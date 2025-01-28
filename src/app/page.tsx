@@ -13,6 +13,7 @@ import {
   GiFruitBowl // default icon for unknown fruits
 } from 'react-icons/gi';
 import { IconType } from 'react-icons';
+import CartLayout from '@/components/CartLayout';
 
 // Create a map of fruit names to their icons
 const fruitIcons: Record<string, IconType> = {
@@ -78,7 +79,8 @@ export default function Home() {
     );
   };
 
-  const getTotalAmount = () => {
+  // For display purposes - returns formatted string
+  const getFormattedTotal = () => {
     return formatPrice(
       cart.reduce(
         (total, item) => total + item.fruit.price * item.quantity,
@@ -87,11 +89,27 @@ export default function Home() {
     );
   };
 
+  // For calculations - returns number
+  const getTotalAmount = () => {
+    return cart.reduce(
+      (total, item) => total + item.fruit.price * item.quantity,
+      0
+    );
+  };
+
   const submitOrder = async () => {
-    if (!customerName || cart.length === 0) return;
+    if (!customerName.trim()) {
+      alert('Please enter your name');
+      return;
+    }
+    
+    if (cart.length === 0) {
+      alert('Your cart is empty');
+      return;
+    }
 
     const order = {
-      customerName,
+      customerName: customerName.trim(),
       items: cart.map(item => ({
         fruitId: item.fruit.id,
         quantity: item.quantity,
@@ -109,18 +127,19 @@ export default function Home() {
         body: JSON.stringify(order)
       });
 
+      const data = await response.json();
+
       if (response.ok) {
         setCart([]);
         setCustomerName('');
-        fetchFruits(); // Refresh fruits to update stock
+        fetchFruits();
         alert('Order submitted successfully!');
       } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit order');
+        throw new Error(data.error || 'Failed to submit order');
       }
     } catch (error) {
       console.error('Error submitting order:', error);
-      alert('Failed to submit order. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to submit order. Please try again.');
     }
   };
 
@@ -130,7 +149,7 @@ export default function Home() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <CartLayout>
       {/* Fruits List */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {fruits.map(fruit => (
@@ -165,52 +184,71 @@ export default function Home() {
       {/* Cart Section */}
       <div className="mt-12">
         <h2 className="text-2xl font-semibold mb-6">Shopping Cart</h2>
-        {cart.map(item => (
-          <div key={item.fruit.id} className="flex items-center justify-between py-4 border-b">
-            <div className="flex items-center space-x-3">
-              {getFruitIcon(item.fruit.name)}
-              <span>{item.fruit.name}</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span>${formatPrice(item.fruit.price)} each</span>
-              <input
-                type="number"
-                value={item.quantity}
-                onChange={(e) => updateQuantity(item.fruit.id, parseInt(e.target.value))}
-                className="w-20 px-2 py-1 border rounded"
-                min="0"
-                max={item.fruit.stock}
-              />
-              <span>${formatPrice(item.fruit.price * item.quantity)}</span>
-            </div>
-          </div>
-        ))}
         
-        <div className="mt-6 text-right">
-          <p className="text-xl font-semibold">Total: ${getTotalAmount()}</p>
-        </div>
-        
-        <div className="pt-6 border-t border-gray-200">
-          <div className="flex justify-between mb-6">
-            <span className="text-lg font-semibold text-gray-900">Total</span>
-            <span className="text-lg font-semibold text-gray-900">
-              ${getTotalAmount()}
-            </span>
-          </div>
+        {cart.length === 0 ? (
+          <p className="text-center text-gray-500 py-6">Your cart is empty</p>
+        ) : (
+          <>
+            {/* Cart items */}
+            {cart.map(item => (
+              <div key={item.fruit.id} className="flex items-center justify-between py-4 border-b">
+                <div className="flex items-center space-x-3">
+                  {getFruitIcon(item.fruit.name)}
+                  <span>{item.fruit.name}</span>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <span>${formatPrice(item.fruit.price)} each</span>
+                  <input
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) => updateQuantity(item.fruit.id, parseInt(e.target.value))}
+                    className="w-20 px-2 py-1 border rounded"
+                    min="0"
+                    max={item.fruit.stock}
+                  />
+                  <span>${formatPrice(item.fruit.price * item.quantity)}</span>
+                </div>
+              </div>
+            ))}
+            
+            {/* Total */}
+            <div className="mt-6 text-right">
+              <p className="text-xl font-semibold">Total: ${getFormattedTotal()}</p>
+            </div>
+            
+            {/* Customer Name Input and Order Button */}
+            <div className="mt-8 space-y-4">
+              <div>
+                <label htmlFor="customerName" className="block text-sm font-medium text-gray-700">
+                  Your Name
+                </label>
+                <input
+                  id="customerName"
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="Enter your name"
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg 
+                           focus:ring-indigo-500 focus:border-indigo-500"
+                  required
+                />
+              </div>
 
-          <button
-            onClick={submitOrder}
-            disabled={cart.length === 0 || !customerName}
-            className="w-full min-h-[44px] bg-indigo-600 text-white px-6 py-3 rounded-lg
-                     text-base font-medium hover:bg-indigo-700 
-                     disabled:bg-gray-300 disabled:cursor-not-allowed
-                     transition-colors focus:outline-none focus:ring-2 
-                     focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            Place Order
-          </button>
-        </div>
+              <button
+                onClick={submitOrder}
+                disabled={cart.length === 0 || !customerName.trim()}
+                className="w-full min-h-[44px] bg-indigo-600 text-white px-6 py-3 rounded-lg
+                         text-base font-medium hover:bg-indigo-700 
+                         disabled:bg-gray-300 disabled:cursor-not-allowed
+                         transition-colors focus:outline-none focus:ring-2 
+                         focus:ring-indigo-500 focus:ring-offset-2"
+              >
+                Place Order
+              </button>
+            </div>
+          </>
+        )}
       </div>
-    </div>
+    </CartLayout>
   );
 } 

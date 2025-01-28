@@ -13,6 +13,7 @@ import {
   GiFruitBowl 
 } from 'react-icons/gi';
 import { IconType } from 'react-icons';
+import AdminLayout from '@/components/AdminLayout';
 
 interface DailySales {
   date: string;
@@ -114,7 +115,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <AdminLayout>
       {/* Analytics Section */}
       <div className="mb-12">
         <h2 className="text-2xl font-semibold mb-6">Store Analytics</h2>
@@ -290,6 +291,6 @@ export default function AdminPage() {
           )}
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 } 
