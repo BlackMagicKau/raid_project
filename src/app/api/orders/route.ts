@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
-import { OrderItem } from '@prisma/client';
 
 interface CreateOrderItem {
   fruitId: number;
