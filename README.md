@@ -1,6 +1,6 @@
 # Fruit Store POS System
 
-This is a [Next.js](https://nextjs.org) project that implements a Point of Sale (POS) system for a fruit store.
+This is a [Next.js](https://nextjs.org) project that implements a Point of Sale (POS) system for a fruit store. It is live [here](https://raid-project.vercel.app)
 
 ## Implemented Features
 
