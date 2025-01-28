@@ -28,6 +28,8 @@ This is a [Next.js](https://nextjs.org) project that implements a Point of Sale 
 - See all customer orders
 - View order details including customer information and items purchased
 - Track order status (pending/completed)
+- View total sales for each day and for each fruit 
+- Add new fruits to amend stock levels
 
 ## Getting Started
 

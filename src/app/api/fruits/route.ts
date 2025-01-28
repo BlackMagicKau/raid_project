@@ -12,4 +12,47 @@ export async function GET() {
       { status: 500 }
     );
   }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { name, price, stock } = body;
+
+    const fruit = await prisma.fruit.create({
+      data: {
+        name,
+        price,
+        stock
+      }
+    });
+
+    return NextResponse.json(fruit);
+  } catch (error) {
+    console.error('Failed to create fruit:', error);
+    return NextResponse.json(
+      { error: 'Failed to create fruit' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, stock } = body;
+
+    const fruit = await prisma.fruit.update({
+      where: { id },
+      data: { stock }
+    });
+
+    return NextResponse.json(fruit);
+  } catch (error) {
+    console.error('Failed to update fruit:', error);
+    return NextResponse.json(
+      { error: 'Failed to update fruit' },
+      { status: 500 }
+    );
+  }
 } 

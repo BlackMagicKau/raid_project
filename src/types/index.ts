@@ -23,4 +23,17 @@ export interface OrderItem {
   fruitId: number;
   quantity: number;
   priceAtPurchase: number;
+}
+
+export interface Analytics {
+  dailySales: {
+    date: string;
+    total: number;
+  }[];
+  fruitSales: {
+    fruitName: string;
+    fruitId: number;
+    totalQuantity: number;
+    totalSales: number;
+  }[];
 } 
