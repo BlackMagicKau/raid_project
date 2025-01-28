@@ -1,4 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fruit Store POS System
+
+This is a [Next.js](https://nextjs.org) project that implements a Point of Sale (POS) system for a fruit store.
+
+## Implemented Features
+
+### Customer Features
+- View available fruits with stock levels and pricing
+- Add fruits to shopping cart
+- Adjust quantities in cart
+- See real-time total amount
+- Submit orders with customer name
+
+### Owner/Admin Features
+- View all customer orders
+- Track order status
+- Monitor inventory levels
+
+## User Stories Completed
+
+✅ **As a customer**, I want to:
+- See a list of fruits that are available to buy (with stock and pricing information)
+- Keep track of fruits and quantities in my cart
+- See the total amount I need to pay
+- Submit my order when I'm done shopping
+
+✅ **As an owner**, I want to:
+- See all customer orders
+- View order details including customer information and items purchased
+- Track order status (pending/completed)
 
 ## Getting Started
 
@@ -16,18 +45,24 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Navigation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/` - Customer store view
+- `/admin` - Admin dashboard for order management
+
+## Tech Stack
+
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Prisma (PostgreSQL)
 
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Learn Next.js](https://nextjs.org/learn)
 
 ## Deploy on Vercel
 
